@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Net.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 public class PeopleController : Controller
 {
@@ -12,9 +13,14 @@ public class PeopleController : Controller
     {
         _httpClient = httpClientFactory.CreateClient("swapi");
     }
-    public IActionResult Index()
-    {
-    return View();
+    public async Task<IActionResult> Index(string page)
+    {   
+        string route = $"people?page={page ?? "1"}";
+        HttpResponseMessage response = await _httpClient.GetAsync(route);
+
+        var people = await response.Content.ReadAsAsync<ResultsViewModel<PeopleViewModel>>();
+
+        return View(people);
     }
 }
 
